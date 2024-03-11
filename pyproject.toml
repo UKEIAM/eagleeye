@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "eagleeye"
+version = "0.1.0"
+description = "Observing mice from the beginning till the end 🦅"
+authors = ["Michael Blaß <m.blass@uke.de>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+numpy = "^1.26.4"
+pandas = "^2.2.1"
+arviz = "^0.17.0"
+altair = "^5.2.0"
+streamlit = "^1.32.0"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.9.0"
+pylint = "^3.1.0"
+pytest = "^8.1.1"
+pandas-stubs = "^2.2.0.240218"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
