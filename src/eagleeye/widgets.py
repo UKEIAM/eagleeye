@@ -20,7 +20,7 @@ def data_elements() -> None:
             'help': "Original measurements from the lab"},
 
         'Mean Prediction': {
-            'value': True,
+            'value': False,
             'key': "ctrl_prediction",
             'help': ("Mean prediction of the body weight according to the "
                      "underlying auto-regressive model.")},
