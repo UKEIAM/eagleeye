@@ -14,11 +14,8 @@ X_LABEL = "Visit"
 Y_LABEL = "Body weight [g]"
 
 
-def measurements(fig, data: pd.DataFrame):
-    df = pd.read_pickle("../de.uke.iam.mouse/data/features-with-indicators.pkl")
-    g = df.groupby("mouse_id")
-    x = g.get_group(3).dropna().reset_index()
-
+def measurements(fig, feat):
+    x = feat.dropna().reset_index()
     c = alt.Chart(x).mark_point(color='grey').encode(alt.X('index'),
                                                      alt.Y('weight').scale(zero=False))
     fig.append(c)
@@ -55,7 +52,7 @@ def _conf_int(df, color):
     return crt
 
 
-def confidence(fig, data: list[pd.DataFrame]) -> None:
+def confidence(fig, data: pd.DataFrame) -> None:
     charts = []
 
     data_pred = pp.get_confidence(data, mode="predictions")
@@ -72,69 +69,67 @@ def confidence(fig, data: list[pd.DataFrame]) -> None:
     fig.append(utils.combine_charts(charts))
 
 
-def threshold(fig, data) -> None:
-    cond = x[['chemo', 'radiation', 'operation']].sum(axis=1) > 0
-    th = x[cond].iloc[0].weight * (4/5)
-    v = pd.DataFrame({'index': x['index'], 'val': th})
-    c = alt.Chart(v
-                  ).mark_line(
-                          color='white'
-                  ).encode(
-                          alt.X('index'),
-                          alt.Y('val'))
+def _compute_threshold(feat) -> pd.DataFrame:
+    cond = feat[['chemo', 'radiation', 'operation']].sum(axis=1) > 0
+    th = feat[cond].iloc[0].weight * (4/5)
+    df = pd.DataFrame({'index': feat.index, 'val': th})
+    return df
+
+def threshold(fig, thdf) -> None:
+    c = alt.Chart(thdf
+          ).mark_line(
+                  color='white'
+          ).encode(
+                  alt.X('index'),
+                  alt.Y('val'))
     fig.append(c)
 
 
-def _get_indicator(var):
-    raw = pd.read_pickle("../de.uke.iam.mouse/data/features-with-indicators.pkl")
-    g = raw.groupby("mouse_id")
-    df = g.get_group(3).dropna().reset_index()
-    return df[['index', var]]
+def _get_indicator(df, var):
+    g = df.groupby("mouse_id")
+    out = g.get_group(3).dropna().reset_index()
+    return out[['index', var]]
 
 
-def annotate_treatment(fig, ttype: str):
-    indi = _get_indicator(ttype)
-    base = alt.Chart(indi
+def annotate_treatment(fig, indicator):
+    base = alt.Chart(indicator
             ).mark_rule(
                 color='green'
             ).encode(
                 x='index'
             ).transform_filter(
-                alt.FieldGTPredicate(field=ttype, gt=0)
+                alt.FieldGTPredicate(field=indicator.columns[-1], gt=0)
             )
     fig.append(base)
 
 
-def chart(mid: int | None) -> None:
-    if mid is None:
-        return
+def chart(feat, trace, args) -> None:
 
-    df = utils.load_data(mid)
     chart_elements: list[alt.Chart] = []
 
     if st.session_state.ctrl_prediction:
-        prediction(chart_elements, df)
+        prediction(chart_elements, trace)
 
     if st.session_state.ctrl_confidence:
-        confidence(chart_elements, df)
+        confidence(chart_elements, trace)
 
     if st.session_state.ctrl_forecast:
-        forecast(chart_elements, df)
+        forecast(chart_elements, trace)
 
     if st.session_state.ctrl_threshold:
-        threshold(chart_elements, df)
+        threshold(chart_elements, _compute_threshold(feat))
 
     if st.session_state.ctrl_measurement:
-        measurements(chart_elements, None)
+        measurements(chart_elements, feat)
 
     if st.session_state.ctrl_chemo:
-        annotate_treatment(chart_elements, "chemo")
+        annotate_treatment(chart_elements, _get_indicator(feat, "chemo"))
 
     if st.session_state.ctrl_radi:
-        annotate_treatment(chart_elements, "radiation")
+        annotate_treatment(chart_elements, _get_indicator(feat, "radiation"))
 
     if st.session_state.ctrl_op:
-        annotate_treatment(chart_elements, "operation")
+        annotate_treatment(chart_elements, _get_indicator(feat, "operation"))
 
     if chart_elements:
         out = functools.reduce(operator.add, chart_elements)

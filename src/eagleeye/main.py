@@ -7,6 +7,7 @@ import streamlit as st
 
 from eagleeye import widgets
 from eagleeye import charts
+from eagleeye import utils
 
 
 log = logging.getLogger(__name__)
@@ -19,6 +20,7 @@ def main(argv=None):
 
     args = _parse_cmd_line(argv)
     widgets.init_ui_controls(args)
+
     mid = st.session_state.ctrl_id_select
 
     if mid is None:
@@ -28,12 +30,20 @@ def main(argv=None):
         st.title("Evolution of body weight")
         st.text(f"Mouse ID: {mid}")
         path = args.data_path.joinpath(f"{mid}.ndf")
-        charts.chart(path)
+
+        trace = utils.load_data(path)
+        raw_features = utils.load_features(args.feature_path)
+        g = raw_features.groupby("mouse_id")
+        feat = g.get_group(int(mid))
+        charts.chart(feat, trace, args)
+
+
 
 
 def _parse_cmd_line(argv):
     parser = argparse.ArgumentParser("EagleEye")
-    parser.add_argument("data_path", type=pathlib.Path, help="Path to data file")
+    parser.add_argument("data_path", type=pathlib.Path, help="Path to data files")
+    parser.add_argument("feature_path", type=pathlib.Path, help="Path to feature file")
     return parser.parse_args(argv[1:])
 
 
