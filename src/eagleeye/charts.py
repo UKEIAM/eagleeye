@@ -112,9 +112,19 @@ def annotate_treatment(fig: FigContainer, indicator: pd.DataFrame) -> None:
         fig:        Final chart container
         indicator:  Tratment indicator variable
     """
+    colormap = {
+        'chemo': "green",
+        'radiation': "yellow",
+        'operation': "red"
+    }
+    for name, clr in colormap.items():
+        if name in indicator.columns:
+            color = clr
+            break
+
     base = alt.Chart(indicator
             ).mark_rule(
-                color='green'
+                color=color
             ).encode(
                 x='index'
             ).transform_filter(
