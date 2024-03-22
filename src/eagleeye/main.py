@@ -34,7 +34,7 @@ def main(argv=None):
         trace = utils.load_data(path)
         raw_features = utils.load_features(args.feature_path)
         g = raw_features.groupby("mouse_id")
-        feat = g.get_group(int(mid))
+        feat = g.get_group(int(mid)).reset_index(drop=True)
         charts.chart(feat, trace, args)
 
 
