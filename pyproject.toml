@@ -12,12 +12,16 @@ pandas = "^2.2.1"
 arviz = "^0.17.0"
 altair = "^5.2.0"
 streamlit = "^1.32.0"
+ipykernel = {version = "^6.29.3", optional = true}
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.9.0"
 pylint = "^3.1.0"
 pytest = "^8.1.1"
 pandas-stubs = "^2.2.0.240218"
+
+[tool.poetry.group.notebook.dependencies]
+ipykernel = "^6.29.3"
 
 [build-system]
 requires = ["poetry-core"]
