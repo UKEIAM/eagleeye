@@ -1,3 +1,6 @@
+"""
+EagleEye - observing mice from the beginning till the end.
+"""
 import argparse
 import pathlib
 import logging
@@ -14,7 +17,8 @@ log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-def main(argv=None):
+def main(argv: list[str] | None = None) -> int:
+    """Entry point for app execution."""
     if argv is None:
         argv = sys.argv
 
@@ -31,18 +35,19 @@ def main(argv=None):
         st.text(f"Mouse ID: {mid}")
         path = args.data_path.joinpath(f"{mid}.ndf")
 
-        trace = utils.load_data(path)
+        trace = utils.load_idata(path)
         raw_features = utils.load_features(args.feature_path)
         g = raw_features.groupby("mouse_id")
         feat = g.get_group(int(mid)).reset_index(drop=True)
+
         fig = charts.render_chart_elements(feat, trace)
         if fig:
             st.altair_chart(fig, use_container_width=True)
 
+    return 0
 
 
-
-def _parse_cmd_line(argv):
+def _parse_cmd_line(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser("EagleEye")
     parser.add_argument("data_path", type=pathlib.Path, help="Path to data files")
     parser.add_argument("feature_path", type=pathlib.Path, help="Path to feature file")
