@@ -167,7 +167,7 @@ def render_chart_elements(
         annotate_treatment(chart_elements, _get_indicator(feat, "operation"))
 
     if chart_elements:
-        return functools.reduce(operator.add, chart_elements)
+        return utils.combine_charts(chart_elements)
     return None
 
 
