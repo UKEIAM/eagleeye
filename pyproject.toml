@@ -26,3 +26,18 @@ ipykernel = "^6.29.3"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+
+[[tool.mypy.overrides]]
+module = "eagleeye.utils"
+disallow_untyped_calls = false
+
+[[tool.mypy.overrides]]
+module = "eagleeye.preprocessing"
+disallow_untyped_calls = false
+disable_error_code = "attr-defined"
+
+[[tool.mypy.overrides]]
+module = "eagleeye.widgets"
+disable_error_code = "arg-type"
