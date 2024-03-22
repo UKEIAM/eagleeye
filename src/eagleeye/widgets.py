@@ -54,7 +54,7 @@ def data_elements() -> None:
 
     st.sidebar.caption("Data elements")
     for label, kwargs in _widget_def.items():
-        st.sidebar.toggle(label, kwargs=kwargs)
+        st.sidebar.toggle(label, **kwargs)      # typing: ignore
 
 
 def annotations() -> None:
@@ -75,7 +75,7 @@ def annotations() -> None:
 
     st.sidebar.caption("Treatment annotations")
     for label, kwargs in _widget_def.items():
-        st.sidebar.toggle(label, kwargs=kwargs)
+        st.sidebar.toggle(label, **kwargs)      # typing: ignore
 
 
 def init_ui_controls(args: argparse.Namespace) -> None:
