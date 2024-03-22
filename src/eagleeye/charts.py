@@ -189,7 +189,5 @@ def _compute_threshold(feat: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def _get_indicator(df: pd.DataFrame, treatmen_name: str) -> pd.DataFrame:
-    g = df.groupby("mouse_id")
-    out = g.get_group(3).dropna().reset_index()
-    return out[['index', treatmen_name]]
+def _get_indicator(df: pd.DataFrame, treatment: str) -> pd.DataFrame:
+    return df.reset_index()[['index', treatment]]
