@@ -1,12 +1,9 @@
-import argparse
-import functools
-import operator
+from typing import cast
 
 import altair as alt
 import arviz as az
 import pandas as pd
 import streamlit as st
-import logging
 
 from . import preprocessing as pp
 from . import utils
@@ -179,7 +176,7 @@ def _cred_int_chart(df: pd.DataFrame, color: str) -> alt.Chart:
                 alt.Y('upper').scale(zero=False).title(Y_LABEL),
                 alt.Y2('lower')
             )
-    return chart
+    return cast(alt.Chart, chart)
 
 
 def _compute_threshold(feat: pd.DataFrame) -> pd.DataFrame:
