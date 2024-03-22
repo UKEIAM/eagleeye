@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "eagleeye"
-version = "0.1.0"
+version = "0.1.1"
 description = "Observing mice from the beginning till the end 🦅"
 authors = ["Michael Blaß <m.blass@uke.de>"]
 readme = "README.md"
