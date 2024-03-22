@@ -1,7 +1,9 @@
 """
 Define UI controls
 """
+import argparse
 import pathlib
+from typing import Generator
 
 import streamlit as st
 
@@ -12,8 +14,9 @@ def mouse_id_selector(data_path: pathlib.Path) -> None:
     Args:
         data_path: path the model files
     """
-    ids = [None]
-    ids.extend(p.stem for p in sorted(data_path.glob("*.ndf"), key=lambda x: int(x.stem)))
+    ids: list[str | None] = [None]
+    files = sorted(data_path.glob("*.ndf"), key=lambda x: int(x.stem))
+    ids.extend(file.stem for file in files)
     st.sidebar.selectbox("Select mouse ID", ids, key="ctrl_id_select")
 
 
@@ -51,10 +54,10 @@ def data_elements() -> None:
 
     st.sidebar.caption("Data elements")
     for label, kwargs in _widget_def.items():
-        st.sidebar.toggle(label, **kwargs)
+        st.sidebar.toggle(label, kwargs=kwargs)
 
 
-def annotations():
+def annotations() -> None:
     """Render annotation control toggles"""
     _widget_def = {
         '\U0001F9ea Chemo therapie': {
@@ -72,10 +75,10 @@ def annotations():
 
     st.sidebar.caption("Treatment annotations")
     for label, kwargs in _widget_def.items():
-        st.sidebar.toggle(label, **kwargs)
+        st.sidebar.toggle(label, kwargs=kwargs)
 
 
-def init_ui_controls(args):
+def init_ui_controls(args: argparse.Namespace) -> None:
     """Inittialize all interactive UI elements"""
     mouse_id_selector(args.data_path)
     data_elements()
