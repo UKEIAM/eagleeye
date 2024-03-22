@@ -1,8 +1,9 @@
+import argparse
 import functools
 import operator
 
 import altair as alt
-from altair import datum
+import arviz as az
 import pandas as pd
 import streamlit as st
 import logging
@@ -13,26 +14,51 @@ from . import utils
 X_LABEL = "Visit"
 Y_LABEL = "Body weight [g]"
 
-
-def measurements(fig, feat):
-    x = feat.dropna().reset_index()
-    c = alt.Chart(x).mark_point(color='grey').encode(alt.X('index'),
-                                                     alt.Y('weight').scale(zero=False))
-    fig.append(c)
+FigContainer = list[alt.Chart]
 
 
-def prediction(fig, data: pd.DataFrame):
-    chart = alt.Chart(pp.get_predictions(data)
-                ).mark_line(
-                ).encode(
-                    alt.X('index').title(X_LABEL),
-                    alt.Y('prediction').title(Y_LABEL).scale(zero=False)
-                )
+def append_measurements(fig: FigContainer, feat: pd.DataFrame) -> None:
+    """Append the original measured data to the final chart.
+
+    Args:
+        fig:    Final chart container
+        feat:   Original weight dataframe
+    """
+    df = feat.dropna().reset_index()
+    chart = alt.Chart(df
+            ).mark_point(
+                color='grey'
+            ).encode(
+                alt.X('index'),
+                alt.Y('weight').scale(zero=False)
+            )
     fig.append(chart)
 
 
-def forecast(fig, data: pd.DataFrame):
-    chart = alt.Chart(pp.get_forecast(data)
+def append_prediction(fig: FigContainer, idata: az.InferenceData) -> None:
+    """Append the models mean prediction to the final chart.
+
+    Args:
+        fig:    Final chart container
+        idata:  Model inference data
+    """
+    chart = alt.Chart(pp.get_predictions(idata)
+            ).mark_line(
+            ).encode(
+                alt.X('index').title(X_LABEL),
+                alt.Y('prediction').title(Y_LABEL).scale(zero=False)
+            )
+    fig.append(chart)
+
+
+def append_forecast(fig: FigContainer, idata: az.InferenceData) -> None:
+    """Append the models forecast to the final chart.
+
+    Args:
+        fig:    Final chart container
+        idata:  Model inference data
+    """
+    chart = alt.Chart(pp.get_forecast(idata)
             ).mark_circle(
                 color="red"
             ).encode(
@@ -42,56 +68,53 @@ def forecast(fig, data: pd.DataFrame):
     fig.append(chart)
 
 
-def _conf_int(df, color):
-    crt = alt.Chart(df
-            ).mark_area(opacity=0.1, color=color
-            ).encode(
-                alt.X('index').title(X_LABEL),
-                alt.Y('upper').scale(zero=False).title(Y_LABEL),
-                alt.Y2('lower'))
-    return crt
+def append_credible_interval(fig: FigContainer, idata: az.InferenceData) -> None:
+    """Append the credible interval of the model fit  to the final chart.
 
-
-def confidence(fig, data: pd.DataFrame) -> None:
+    Args:
+        fig:    Final chart container
+        idata:  Model inference data
+    """
     charts = []
 
-    data_pred = pp.get_confidence(data, mode="predictions")
+    data_pred = pp.get_confidence(idata, mode="predictions")
     for df in data_pred:
-        chart = _conf_int(df, color="blue")
+        chart = _cred_int_chart(df, color="blue")
         charts.append(chart)
 
     if st.session_state.ctrl_forecast:
-        data_forecast = pp.get_confidence(data, mode="forecast")
+        data_forecast = pp.get_confidence(idata, mode="forecast")
         for df in data_forecast:
-            chart = _conf_int(df, color="red")
+            chart = _cred_int_chart(df, color="red")
             charts.append(chart)
 
     fig.append(utils.combine_charts(charts))
 
 
-def _compute_threshold(feat) -> pd.DataFrame:
-    cond = feat[['chemo', 'radiation', 'operation']].sum(axis=1) > 0
-    th = feat[cond].iloc[0].weight * (4/5)
-    df = pd.DataFrame({'index': feat.index, 'val': th})
-    return df
+def append_threshold(fig: FigContainer, thdf: pd.DataFrame) -> None:
+    """Append the weight threshold to the final chart.
 
-def threshold(fig, thdf) -> None:
-    c = alt.Chart(thdf
-          ).mark_line(
-                  color='white'
-          ).encode(
-                  alt.X('index'),
-                  alt.Y('val'))
-    fig.append(c)
-
-
-def _get_indicator(df, var):
-    g = df.groupby("mouse_id")
-    out = g.get_group(3).dropna().reset_index()
-    return out[['index', var]]
+    Args:
+        fig:    Final chart container
+        thdf:   Dataframe
+    """
+    chart = alt.Chart(thdf
+            ).mark_line(
+                color='white'
+            ).encode(
+                alt.X('index'),
+                alt.Y('val')
+            )
+    fig.append(chart)
 
 
-def annotate_treatment(fig, indicator):
+def annotate_treatment(fig: FigContainer, indicator: pd.DataFrame) -> None:
+    """Append the weight threshold to the final chart.
+
+    Args:
+        fig:        Final chart container
+        indicator:  Tratment indicator variable
+    """
     base = alt.Chart(indicator
             ).mark_rule(
                 color='green'
@@ -103,24 +126,36 @@ def annotate_treatment(fig, indicator):
     fig.append(base)
 
 
-def chart(feat, trace, args) -> None:
+def render_chart_elements(
+        feat: pd.DataFrame,
+        idata: az.InferenceData,
+    ) -> alt.Chart | None:
+    """Render the final chart.
+
+    Args:
+        feat:   Original weight dataframe
+        idata:  Model inference data
+
+    Returns:
+        Final chart
+    """
 
     chart_elements: list[alt.Chart] = []
 
+    if st.session_state.ctrl_measurement:
+        append_measurements(chart_elements, feat)
+
     if st.session_state.ctrl_prediction:
-        prediction(chart_elements, trace)
+        append_prediction(chart_elements, idata)
 
     if st.session_state.ctrl_confidence:
-        confidence(chart_elements, trace)
+        append_credible_interval(chart_elements, idata)
 
     if st.session_state.ctrl_forecast:
-        forecast(chart_elements, trace)
+        append_forecast(chart_elements, idata)
 
     if st.session_state.ctrl_threshold:
-        threshold(chart_elements, _compute_threshold(feat))
-
-    if st.session_state.ctrl_measurement:
-        measurements(chart_elements, feat)
+        append_threshold(chart_elements, _compute_threshold(feat))
 
     if st.session_state.ctrl_chemo:
         annotate_treatment(chart_elements, _get_indicator(feat, "chemo"))
@@ -132,5 +167,29 @@ def chart(feat, trace, args) -> None:
         annotate_treatment(chart_elements, _get_indicator(feat, "operation"))
 
     if chart_elements:
-        out = functools.reduce(operator.add, chart_elements)
-        st.altair_chart(out, use_container_width=True)
+        return functools.reduce(operator.add, chart_elements)
+    return None
+
+
+def _cred_int_chart(df: pd.DataFrame, color: str) -> alt.Chart:
+    chart = alt.Chart(df
+            ).mark_area(opacity=0.1, color=color
+            ).encode(
+                alt.X('index').title(X_LABEL),
+                alt.Y('upper').scale(zero=False).title(Y_LABEL),
+                alt.Y2('lower')
+            )
+    return chart
+
+
+def _compute_threshold(feat: pd.DataFrame) -> pd.DataFrame:
+    cond = feat[['chemo', 'radiation', 'operation']].sum(axis=1) > 0
+    th = feat[cond].iloc[0].weight * (4/5)
+    df = pd.DataFrame({'index': feat.index, 'val': th})
+    return df
+
+
+def _get_indicator(df: pd.DataFrame, treatmen_name: str) -> pd.DataFrame:
+    g = df.groupby("mouse_id")
+    out = g.get_group(3).dropna().reset_index()
+    return out[['index', treatmen_name]]

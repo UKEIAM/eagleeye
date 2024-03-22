@@ -35,7 +35,9 @@ def main(argv=None):
         raw_features = utils.load_features(args.feature_path)
         g = raw_features.groupby("mouse_id")
         feat = g.get_group(int(mid)).reset_index(drop=True)
-        charts.chart(feat, trace, args)
+        fig = charts.render_chart_elements(feat, trace)
+        if fig:
+            st.altair_chart(fig, use_container_width=True)
 
 
 
