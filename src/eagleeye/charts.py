@@ -160,10 +160,10 @@ def render_chart_elements(
     if st.session_state.ctrl_chemo:
         annotate_treatment(chart_elements, _get_indicator(feat, "chemo"))
 
-    if st.session_state.ctrl_radi:
+    if st.session_state.ctrl_radiation:
         annotate_treatment(chart_elements, _get_indicator(feat, "radiation"))
 
-    if st.session_state.ctrl_op:
+    if st.session_state.ctrl_operation:
         annotate_treatment(chart_elements, _get_indicator(feat, "operation"))
 
     if chart_elements:

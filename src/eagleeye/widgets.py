@@ -56,11 +56,11 @@ def annotations():
 
         '\U00002622 Radioation': {
             'value': False,
-            'key': "ctrl_radi"},
+            'key': "ctrl_radiation"},
 
         '\U0001FAC0 OP': {
             'value': False,
-            'key': "ctrl_op"},
+            'key': "ctrl_operation"},
     }
 
     st.sidebar.caption("Treatment annotations")
