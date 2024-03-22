@@ -7,12 +7,18 @@ import streamlit as st
 
 
 def mouse_id_selector(data_path: pathlib.Path) -> None:
+    """Render drop down menu for mouse ID.
+
+    Args:
+        data_path: path the model files
+    """
     ids = [None]
     ids.extend(p.stem for p in sorted(data_path.glob("*.ndf"), key=lambda x: int(x.stem)))
     st.sidebar.selectbox("Select mouse ID", ids, key="ctrl_id_select")
 
 
 def data_elements() -> None:
+    """Render data control toggles."""
     _widget_def = {
         'Measurement': {
             'value': True,
@@ -49,6 +55,7 @@ def data_elements() -> None:
 
 
 def annotations():
+    """Render annotation control toggles"""
     _widget_def = {
         '\U0001F9ea Chemo therapie': {
             'value': False,
@@ -69,6 +76,7 @@ def annotations():
 
 
 def init_ui_controls(args):
+    """Inittialize all interactive UI elements"""
     mouse_id_selector(args.data_path)
     data_elements()
     annotations()
