@@ -80,6 +80,6 @@ def annotations() -> None:
 
 def init_ui_controls(args: argparse.Namespace) -> None:
     """Inittialize all interactive UI elements"""
-    mouse_id_selector(args.data_path)
+    mouse_id_selector(args.models)
     data_elements()
     annotations()

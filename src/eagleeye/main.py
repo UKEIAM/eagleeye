@@ -33,10 +33,10 @@ def main(argv: list[str] | None = None) -> int:
     else:
         st.title("Evolution of body weight")
         st.text(f"Mouse ID: {mid}")
-        path = args.data_path.joinpath(f"{mid}.ndf")
+        path = args.models.joinpath(f"{mid}.ndf")
 
         trace = utils.load_idata(path)
-        raw_features = utils.load_features(args.feature_path)
+        raw_features = utils.load_features(args.features)
         g = raw_features.groupby("mouse_id")
         feat = g.get_group(int(mid)).reset_index(drop=True)
 
