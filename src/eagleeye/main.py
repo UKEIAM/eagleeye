@@ -53,6 +53,20 @@ def _parse_cmd_line(argv: list[str]) -> argparse.Namespace:
             help="Path to data files")
     parser.add_argument("-f", "--features", type=pathlib.Path, default=pathlib.Path("/data/input/features.pkl"),
         help="Path to feature file")
+    args = parser.parse_args(argv[1:])
+    _check_args(args)
+    return args
+
+
+def _check_args(args: argparse.Namespace) -> None:
+    if args.models.is_dir():
+        if not list(args.models.glob("*.ndf")):
+            raise ValueError("Model directory empty")
+    else:
+        raise ValueError("Model path not a directory")
+
+    if not args.features.is_file():
+        raise ValueError("Feature path not a regular file")
 
 
 if __name__ == "__main__":
