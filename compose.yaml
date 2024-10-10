@@ -1,0 +1,9 @@
+services:
+  eagleeye:
+    build:
+      context: .
+    ports:
+      - "8501:8501"
+    volumes:
+      - ${MODELS_PATH}:/data/models/:ro
+      - ${FEATURES_PATH}:/data/input/features.pkl:ro

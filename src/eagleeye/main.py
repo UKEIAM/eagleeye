@@ -49,9 +49,10 @@ def main(argv: list[str] | None = None) -> int:
 
 def _parse_cmd_line(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser("EagleEye")
-    parser.add_argument("data_path", type=pathlib.Path, help="Path to data files")
-    parser.add_argument("feature_path", type=pathlib.Path, help="Path to feature file")
-    return parser.parse_args(argv[1:])
+    parser.add_argument("-m", "--models", type=pathlib.Path, default=pathlib.Path("/data/models"),
+            help="Path to data files")
+    parser.add_argument("-f", "--features", type=pathlib.Path, default=pathlib.Path("/data/input/features.pkl"),
+        help="Path to feature file")
 
 
 if __name__ == "__main__":
