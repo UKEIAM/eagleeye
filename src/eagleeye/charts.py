@@ -26,8 +26,8 @@ def append_measurements(fig: FigContainer, feat: pd.DataFrame) -> None:
             ).mark_point(
                 color='grey'
             ).encode(
-                alt.X('index'),
-                alt.Y('weight').scale(zero=False)
+                alt.X('index').title(X_LABEL),
+                alt.Y('weight').title(Y_LABEL).scale(zero=False)
             )
     fig.append(chart)
 
