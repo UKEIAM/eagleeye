@@ -12,6 +12,12 @@ from . import utils
 X_LABEL = "Visit"
 Y_LABEL = "Body weight [g]"
 
+DISPLACE = {
+    'chemo': -0.2,
+    'radiation': 0,
+    'operation': 0.2
+}
+
 FigContainer = list[alt.Chart]
 
 
@@ -192,7 +198,10 @@ def _get_threshold(obs: pd.DataFrame) -> pd.DataFrame:
 
 
 def _get_indicator(idata: az.InferenceData, treatment: str) -> pd.DataFrame:
-    df = idata['constant_data']['treatments'].sel(treatment_type=treatment).to_dataframe(name=treatment)
-    df = df.drop(columns='treatment_type')
-    df.index.name = "Visit"
+    df = (idata['constant_data']['treatments']
+          .sel(treatment_type=treatment)
+          .to_dataframe(name=treatment)
+          .drop(columns='treatment_type')
+          .reset_index(names='Visit'))
+    df['Visit'] += DISPLACE[treatment]
     return df
