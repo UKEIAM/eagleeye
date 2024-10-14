@@ -47,3 +47,6 @@ cd path/to/eagleeye/repo
 export EAGLEEYE_MODEL_PATH=/path/to/your/models
 docker-compose up
 ```
+
+## Example data
+If you want to try EagleEye and have no data, use our the [demo dataset](https://www.fdr.uni-hamburg.de/record/16079).
