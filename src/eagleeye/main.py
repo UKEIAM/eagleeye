@@ -36,11 +36,7 @@ def main(argv: list[str] | None = None) -> int:
         path = args.models.joinpath(f"{mid}.ndf")
 
         trace = utils.load_idata(path)
-        raw_features = utils.load_features(args.features)
-        g = raw_features.groupby("mouse_id")
-        feat = g.get_group(int(mid)).reset_index(drop=True)
-
-        fig = charts.render_chart_elements(feat, trace)
+        fig = charts.render_chart_elements(trace)
         if fig:
             st.altair_chart(fig, use_container_width=True)
 
@@ -51,8 +47,6 @@ def _parse_cmd_line(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser("EagleEye")
     parser.add_argument("-m", "--models", type=pathlib.Path, default=pathlib.Path("/data/models"),
             help="Path to data files")
-    parser.add_argument("-f", "--features", type=pathlib.Path, default=pathlib.Path("/data/input/features.pkl"),
-        help="Path to feature file")
     args = parser.parse_args(argv[1:])
     _check_args(args)
     return args
@@ -64,9 +58,6 @@ def _check_args(args: argparse.Namespace) -> None:
             raise ValueError("Model directory empty")
     else:
         raise ValueError("Model path not a directory")
-
-    if not args.features.is_file():
-        raise ValueError("Feature path not a regular file")
 
 
 if __name__ == "__main__":

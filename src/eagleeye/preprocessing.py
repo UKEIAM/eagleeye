@@ -19,7 +19,7 @@ def get_predictions(idata: az.InferenceData) -> pd.DataFrame:
 
 
 def get_forecast(idata: az.InferenceData) -> pd.DataFrame:
-    x = idata.predictions.obs_id_future.to_dataframe()
+    x = idata.predictions.visits_fut.to_dataframe()
     y = idata.predictions.yhat_fut.mean(["chain", "draw"]).to_dataframe()
     df = pd.concat((x, y), axis=1)
     df.index.name = None
@@ -32,10 +32,10 @@ def get_confidence(idata: az.InferenceData, *,
                    mode: str = "predictions"
                    ) -> list[pd.DataFrame]:
     if mode == "predictions":
-        index = np.arange(idata.predictions.obs_idx.data.size, dtype=np.int32)
+        index = np.arange(idata.predictions.visits.data.size, dtype=np.int32)
         weight = az.extract(idata, group="predictions").llh
     elif mode == "forecast":
-        index = idata.predictions.obs_id_future
+        index = idata.predictions.visits_fut
         weight = az.extract(idata, group="predictions").yhat_fut
     else:
         raise ValueError(f"Unknown mode '{mode}'.")

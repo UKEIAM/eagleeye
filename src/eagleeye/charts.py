@@ -4,6 +4,7 @@ import altair as alt
 import arviz as az
 import pandas as pd
 import streamlit as st
+from xarray import DataArray
 
 from . import preprocessing as pp
 from . import utils
@@ -14,19 +15,18 @@ Y_LABEL = "Body weight [g]"
 FigContainer = list[alt.Chart]
 
 
-def append_measurements(fig: FigContainer, feat: pd.DataFrame) -> None:
+def append_measurements(fig: FigContainer, weight: pd.DataFrame) -> None:
     """Append the original measured data to the final chart.
 
     Args:
         fig:    Final chart container
         feat:   Original weight dataframe
     """
-    df = feat.dropna().reset_index()
-    chart = alt.Chart(df
+    chart = alt.Chart(weight
             ).mark_point(
                 color='grey'
             ).encode(
-                alt.X('index').title(X_LABEL),
+                alt.X('visit').title(X_LABEL),
                 alt.Y('weight').title(Y_LABEL).scale(zero=False)
             )
     fig.append(chart)
@@ -88,19 +88,18 @@ def append_credible_interval(fig: FigContainer, idata: az.InferenceData) -> None
     fig.append(utils.combine_charts(charts))
 
 
-def append_threshold(fig: FigContainer, thdf: pd.DataFrame) -> None:
+def append_threshold(fig: FigContainer, obs: pd.DataFrame) -> None:
     """Append the weight threshold to the final chart.
 
     Args:
         fig:    Final chart container
         thdf:   Dataframe
     """
-    chart = alt.Chart(thdf
-            ).mark_line(
+    chart = alt.Chart(obs
+            ).mark_rule(
                 color='white'
             ).encode(
-                alt.X('index'),
-                alt.Y('val')
+                alt.Y("threshold")
             )
     fig.append(chart)
 
@@ -117,16 +116,12 @@ def annotate_treatment(fig: FigContainer, indicator: pd.DataFrame) -> None:
         'radiation': "yellow",
         'operation': "red"
     }
-    for name, clr in colormap.items():
-        if name in indicator.columns:
-            color = clr
-            break
-
-    base = alt.Chart(indicator
+    color = colormap[indicator.columns[-1]]
+    base = alt.Chart(indicator.reset_index()
             ).mark_rule(
                 color=color
             ).encode(
-                x='index'
+                x='Visit'
             ).transform_filter(
                 alt.FieldGTPredicate(field=indicator.columns[-1], gt=0)
             )
@@ -134,13 +129,11 @@ def annotate_treatment(fig: FigContainer, indicator: pd.DataFrame) -> None:
 
 
 def render_chart_elements(
-        feat: pd.DataFrame,
         idata: az.InferenceData,
     ) -> alt.Chart | None:
     """Render the final chart.
 
     Args:
-        feat:   Original weight dataframe
         idata:  Model inference data
 
     Returns:
@@ -148,9 +141,12 @@ def render_chart_elements(
     """
 
     chart_elements: list[alt.Chart] = []
+    obs_weight = pd.DataFrame({
+            'visit': idata['constant_data']['visits'].to_numpy(),
+            'weight': idata['observed_data']['llh']})
 
     if st.session_state.ctrl_measurement:
-        append_measurements(chart_elements, feat)
+        append_measurements(chart_elements, obs_weight)
 
     if st.session_state.ctrl_prediction:
         append_prediction(chart_elements, idata)
@@ -162,16 +158,16 @@ def render_chart_elements(
         append_forecast(chart_elements, idata)
 
     if st.session_state.ctrl_threshold:
-        append_threshold(chart_elements, _compute_threshold(feat))
+        append_threshold(chart_elements, _get_threshold(obs_weight))
 
     if st.session_state.ctrl_chemo:
-        annotate_treatment(chart_elements, _get_indicator(feat, "chemo"))
+        annotate_treatment(chart_elements, _get_indicator(idata, "chemo"))
 
     if st.session_state.ctrl_radiation:
-        annotate_treatment(chart_elements, _get_indicator(feat, "radiation"))
+        annotate_treatment(chart_elements, _get_indicator(idata, "radiation"))
 
     if st.session_state.ctrl_operation:
-        annotate_treatment(chart_elements, _get_indicator(feat, "operation"))
+        annotate_treatment(chart_elements, _get_indicator(idata, "operation"))
 
     if chart_elements:
         return utils.combine_charts(chart_elements)
@@ -189,12 +185,14 @@ def _cred_int_chart(df: pd.DataFrame, color: str) -> alt.Chart:
     return cast(alt.Chart, chart)
 
 
-def _compute_threshold(feat: pd.DataFrame) -> pd.DataFrame:
-    cond = feat[['chemo', 'radiation', 'operation']].sum(axis=1) > 0
-    th = feat[cond].iloc[0].weight * (4/5)
-    df = pd.DataFrame({'index': feat.index, 'val': th})
+def _get_threshold(obs: pd.DataFrame) -> pd.DataFrame:
+    th = obs.weight.iloc[0] * (4/5)
+    df = pd.DataFrame({'index': [0, obs.index[-1]], 'threshold': [th, th]})
     return df
 
 
-def _get_indicator(df: pd.DataFrame, treatment: str) -> pd.DataFrame:
-    return df.reset_index()[['index', treatment]]
+def _get_indicator(idata: az.InferenceData, treatment: str) -> pd.DataFrame:
+    df = idata['constant_data']['treatments'].sel(treatment_type=treatment).to_dataframe(name=treatment)
+    df = df.drop(columns='treatment_type')
+    df.index.name = "Visit"
+    return df
