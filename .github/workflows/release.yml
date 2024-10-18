@@ -1,0 +1,32 @@
+name: publish-release
+
+on: [push, merge]
+    branches:
+      - 'main'
+
+jobs:
+  publish-to-pypi:
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/eagleeye
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
+
+      - name: Set up Python
+        uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: python -m pip install -U pip setuptools build
+
+      - name: Build the package
+        run: python -m build
+
+      - name: Upload files
+        uses: pypa/gh-action-pypi-publish@f7600683efdcb7656dec5b29656edb7bc586e597
