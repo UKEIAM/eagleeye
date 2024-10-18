@@ -8,7 +8,7 @@ Visualization and decision support system for humane endpoint detection in labor
 
 It is recommended install EagleEye in a virtual environment. Create a fresh
 virtual env with `python -m venv {env-name} && source
-{env-name}/bin/activate`, or use a tool like 
+{env-name}/bin/activate`, or use a tool like
 [pyenv](https://github.com/pyenv/pyenv).
 
 ### From PyPi
@@ -26,7 +26,6 @@ git clone https://github.com/ukeiam/eagleeye
 cd EagleEye
 pip install .
 ```
-
 
 ## Run EagleEye
 
@@ -49,4 +48,4 @@ docker-compose up
 ```
 
 ## Example data
-If you want to try EagleEye and have no data, use our the [demo dataset](https://www.fdr.uni-hamburg.de/record/16079).
+If you want to try EagleEye and don't have data, use our the [demo dataset](https://www.fdr.uni-hamburg.de/record/16079).
