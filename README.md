@@ -6,7 +6,7 @@ Visualization and decision support system for humane endpoint detection in labor
 
 ## Install
 
-It is recommended install EagleEye in a virtual environment. Create a fresh
+We recommend to install EagleEye in a virtual environment. Create a fresh
 virtual env with `python -m venv {env-name} && source
 {env-name}/bin/activate`, or use a tool like
 [pyenv](https://github.com/pyenv/pyenv).
@@ -19,7 +19,7 @@ pip install eagleeye
 ```
 
 ### From repository
-You can also install eageleeye from the repository directly:
+You can also install EagleEye from the repository directly:
 
 ```sh
 git clone https://github.com/ukeiam/eagleeye
@@ -30,7 +30,7 @@ pip install .
 ## Run EagleEye
 
 ### Run the server locally
-To run EagleEye, use the ```run.sh`` command and provide the path to the
+To run EagleEye, use the ``run.sh`` command and provide the path to the
 models:
 
 ```
