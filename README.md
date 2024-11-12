@@ -1,4 +1,4 @@
-# EageleEye 🦅
+# EagleEye 🦅
 
 Visualization and decision support system for humane endpoint detection in laboratory rodents.
 
@@ -30,7 +30,7 @@ pip install .
 ## Run EagleEye
 
 ### Run the server locally
-To run EagleEye, use the ``run.sh`` command and provide the path to the
+To run EagleEye, use the ```run.sh``` command and provide the path to the
 models:
 
 ```
@@ -48,4 +48,4 @@ docker-compose up
 ```
 
 ## Example data
-If you want to try EagleEye and don't have data, use our the [demo dataset](https://www.fdr.uni-hamburg.de/record/16079).
+If you want to try EagleEye and have no data, use our [demo dataset](https://www.fdr.uni-hamburg.de/record/16079).
