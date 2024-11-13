@@ -2,7 +2,8 @@ name: publish-release
 
 on:
   push:
-    - 'feat-ci'
+    branches:
+      - 'feat-ci'
 
 jobs:
   publish-to-pypi:
