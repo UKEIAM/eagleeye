@@ -1,3 +1,6 @@
+"""
+Chart preparation
+"""
 from typing import cast
 
 import altair as alt

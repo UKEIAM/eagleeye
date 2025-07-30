@@ -12,6 +12,14 @@ FloatArray = np.ndarray[Any, np.dtype[np.float64]]
 
 
 def get_predictions(idata: az.InferenceData) -> pd.DataFrame:
+    """Retrieve model prediction
+
+    Args:
+        idata:  Model data
+
+    Returns:
+        Model predictions
+    """
     df = idata.predictions.llh.mean(["chain", "draw"]).to_dataframe()
     df = df.reset_index(drop=True).reset_index()
     df.columns = ["index", "prediction"]
@@ -19,6 +27,14 @@ def get_predictions(idata: az.InferenceData) -> pd.DataFrame:
 
 
 def get_forecast(idata: az.InferenceData) -> pd.DataFrame:
+    """Retrieve model forecast
+
+    Args:
+        idata:  Model data
+
+    Returns:
+        Model forecast
+    """
     x = idata.predictions.visits_fut.to_dataframe()
     y = idata.predictions.yhat_fut.mean(["chain", "draw"]).to_dataframe()
     df = pd.concat((x, y), axis=1)
@@ -29,8 +45,17 @@ def get_forecast(idata: az.InferenceData) -> pd.DataFrame:
 
 def get_confidence(idata: az.InferenceData, *,
                    qnt: FloatArray = np.linspace(51, 99, 10),
-                   mode: str = "predictions"
-                   ) -> list[pd.DataFrame]:
+                   mode: str = "predictions") -> list[pd.DataFrame]:
+    """Retrieve HDI
+
+    Args:
+        idata:  Model data
+        qnt:    Quantiles
+        mode:   Either 'predictions' (default), or 'forecast'
+
+    Returns:
+        HDI
+    """
     if mode == "predictions":
         index = np.arange(idata.predictions.visits.data.size, dtype=np.int32)
         weight = az.extract(idata, group="predictions").llh
