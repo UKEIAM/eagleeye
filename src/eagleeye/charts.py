@@ -104,9 +104,7 @@ def append_threshold(fig: FigContainer, obs: pd.DataFrame) -> None:
         thdf:   Dataframe
     """
     chart = alt.Chart(obs
-            ).mark_rule(
-                color='white'
-            ).encode(
+            ).mark_rule(color="#adc178", strokeDash=[10, 10]).encode(
                 alt.Y("threshold")
             )
     fig.append(chart)
@@ -120,9 +118,9 @@ def annotate_treatment(fig: FigContainer, indicator: pd.DataFrame) -> None:
         indicator:  Tratment indicator variable
     """
     colormap = {
-        'chemo': "green",
-        'radiation': "yellow",
-        'operation': "red"
+        'chemo': "#588157",
+        'radiation': "#ffd60a",
+        'operation': "#d00000"
     }
     color = colormap[indicator.columns[-1]]
     base = alt.Chart(indicator.reset_index()
