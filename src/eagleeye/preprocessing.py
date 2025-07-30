@@ -40,7 +40,7 @@ def get_forecast(idata: az.InferenceData) -> pd.DataFrame:
     df = pd.concat((x, y), axis=1)
     df.index.name = None
     df.columns = pd.Index(["index", "forecast"])
-    return df
+    return cast(pd.DataFrame, df)
 
 
 def get_confidence(idata: az.InferenceData, *,
