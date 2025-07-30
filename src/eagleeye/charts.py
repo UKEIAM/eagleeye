@@ -4,7 +4,6 @@ import altair as alt
 import arviz as az
 import pandas as pd
 import streamlit as st
-from xarray import DataArray
 
 from . import preprocessing as pp
 from . import utils

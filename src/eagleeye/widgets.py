@@ -3,7 +3,6 @@ Define UI controls
 """
 import argparse
 import pathlib
-from typing import Generator
 
 import streamlit as st
 
