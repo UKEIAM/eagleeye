@@ -38,4 +38,4 @@ jobs:
         run: poetry install --with=dev 
 
       - name: Run mypy
-        run: python -m mypy --strict src/eagleeye
+        run: poetry run -- mypy --strict src/eagleeye
