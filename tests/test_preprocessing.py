@@ -13,7 +13,7 @@ def models():
     
 def test_get_confidence(models):
     for item in models:
-        res = pp.get_confidence(data)
+        res = pp.get_confidence(item)
         assert isinstance(res, list)
         for df in res:
             assert isinstance(df, pd.DataFrame)
