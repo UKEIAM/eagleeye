@@ -7,9 +7,14 @@ Visualization and decision support system for humane endpoint detection in labor
 ## Install
 
 We recommend to install EagleEye in a virtual environment. Create a fresh
-virtual env with `python -m venv {env-name} && source
-{env-name}/bin/activate`, or use a tool like
-[pyenv](https://github.com/pyenv/pyenv).
+virtual env and activate it with 
+
+```sh
+python -m venv {env-name}
+source {env-name}/bin/activate
+```
+
+or use a tool like [pyenv](https://github.com/pyenv/pyenv).
 
 ### From PyPi
 Then install EagleEye the standard Python way:
@@ -23,7 +28,7 @@ You can also install EagleEye from the repository directly:
 
 ```sh
 git clone https://github.com/ukeiam/eagleeye
-cd EagleEye
+cd eagleeye
 pip install .
 ```
 
@@ -33,7 +38,7 @@ pip install .
 To run EagleEye, use the ```run.sh``` command and provide the path to the
 models:
 
-```
+```sh
 ./run.sh /path/to/model/directory
 ```
 
@@ -46,6 +51,20 @@ cd path/to/eagleeye/repo
 export EAGLEEYE_MODEL_PATH=/path/to/your/models
 docker-compose up
 ```
+
+## Run test suite
+The test suite requires a dataset to run. EagelEye reads the path to the root
+directory of the test data from the environment variable
+`EAGLEEYE_TESTDATA_PATH`. The [demo
+dataset](https://www.fdr.uni-hamburg.de/record/16079) is suitable for testing
+EagleEye. Additionally, [pytest](https://pytest.org) is required as test
+runner. Once all requirements have been met, execute the following commands to
+start the test run
+
+```sh
+export EAGLEEYE_TESTDATA_PATH=</path/to/test/data/>
+pytest
+``` 
 
 ## Example data
 If you want to try EagleEye and have no data, use our [demo dataset](https://www.fdr.uni-hamburg.de/record/16079).
