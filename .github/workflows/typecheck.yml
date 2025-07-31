@@ -3,11 +3,10 @@ name: typecheck
 on:
   push:
     branches:
-      - 'ci-fix'
+      - 'develop'
   pull_request:
     branches:
       - 'develop'
-      - 'ci-fix'
 
 jobs:
   mypy:
@@ -25,14 +24,14 @@ jobs:
       - name: setup poetry
         uses: Gr1N/setup-poetry@v8
 
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
       - name: setup cache for poetry
         uses: actions/cache@v4
         with:
           path: ~/.cache/pypoetry/virtualenvs
           key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
-
-      - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Install package
         run: poetry install --with=dev 
