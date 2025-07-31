@@ -3,12 +3,11 @@ name: typecheck
 on:
   push:
     branches:
-      - 'main'
-      - 'develop'
+      - 'ci-fix'
   pull_request:
     branches:
-      - 'main'
       - 'develop'
+      - 'ci-fix'
 
 jobs:
   mypy:
