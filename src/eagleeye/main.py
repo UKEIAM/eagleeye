@@ -61,4 +61,4 @@ def _check_args(args: argparse.Namespace) -> None:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
